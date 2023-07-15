@@ -1,0 +1,110 @@
+<h1 class="text-center">Delete songs</h1>
+<div class="_btn-controller">
+    <a class="_btn btn-list-songs" href='/me/stored/songs'>
+        List of songs
+        {{#if undeliveredCount}}
+            <strong class="undelivered-count">{{undeliveredCount}}</strong>
+        {{/if}}
+    </a>
+</div>
+<table class='table'>
+    <thead>
+        <tr>
+            <th scope='col'>Serial</th>
+            <th scope='col'>Name</th>
+            <th scope='col'>Singer</th>
+            <th scope='col' colspan='4'>Delete time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each songs}}
+            <tr>
+                <th scope='row'>{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.singer}}</td>
+                <td>{{this.deletedAt}}</td>
+                <td><a class="btn-restore _btn" data-id="{{this._id}}" href=''>Restore</a></td>
+                <td><a
+                        class="_btn"
+                        href=''
+                        data-bs-toggle='modal'
+                        data-bs-target='#delete-song-modal'
+                        data-bs-id='{{this._id}}'
+                    >Permanently delete</a></td>
+            </tr>
+        {{else}}
+
+            <tr>
+                <td colspan='5' class='text-center'>
+                    <span>Drum trash.</span>
+                </td>
+            </tr>
+
+        {{/each}}
+
+    </tbody>
+</table>
+
+{{! Notice of confirmation of deletion }}
+<div class='modal' id='delete-song-modal' tabindex='-1'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <h5 class='modal-title'>Permanently delete the song?</h5>
+                <button
+                    type='button'
+                    class='btn-close'
+                    data-bs-dismiss='modal'
+                    aria-label='Close'
+                ></button>
+            </div>
+            <div class='modal-body'>
+                <p>You definitely want to permanently delete this song?</p>
+            </div>
+            <div class='modal-footer'>
+                <button
+                    type='button'
+                    class='btn btn-secondary'
+                    data-bs-dismiss='modal'
+                >Cancel</button>
+                <button
+                    id='btn-delete-song'
+                    type='button'
+                    class='btn btn-danger'
+                    data-bs-id='{{this._id}}'
+                >Permanently Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form name='delete-song-form' method='POST'></form>
+<form name='restore-song-form' method='POST'></form>
+
+<script>
+    var songId; 
+    const deleteSongModal = document.getElementById('delete-song-modal') 
+    const deleteSongBtn = document.getElementById('btn-delete-song') 
+    const deleteSongForm = document.forms['delete-song-form']
+    const restoreBtn = document.querySelectorAll('.btn-restore')
+    const restoreForm = document.forms['restore-song-form']
+
+    deleteSongModal.addEventListener('show.bs.modal', function (event) { 
+        var button = event.relatedTarget 
+        songId = button.getAttribute('data-bs-id')
+    })
+
+    deleteSongBtn.onclick = () => { 
+        deleteSongForm.action = '/songs/' + songId + '/focus' + '?_method=DELETE' 
+        deleteSongForm.submit()
+    }
+    
+    restoreBtn.forEach((e) => {
+        e.onclick = (e) => {
+            e.preventDefault()
+            const songId = e.target.getAttribute('data-id')
+            restoreForm.action = '/songs/' + songId + '/restore' + '?_method=PATCH' 
+            restoreForm.submit()
+        }
+    })
+</script>

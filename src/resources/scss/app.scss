@@ -1,0 +1,86 @@
+@import 'variable';
+
+.avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+}
+
+// me/stored/songs
+.stored-controller-btn {
+    margin-top: 8px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.stored-action {
+    margin-top: 8px;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+._btn {
+    height: 30px;
+    padding: 0px 10px;
+    text-decoration: none;
+    font-size: 1rem;
+    line-height: 1rem;
+    font-weight: 600;
+    color: green;
+    background-color: #ccc;
+    border-radius: 4px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    outline: none;
+    border: none;
+}
+
+._btn + ._btn {
+    margin-left: 8px;
+}
+
+._btn:hover {
+    color: green;
+    opacity: 0.8;
+}
+
+.btn-trash {
+    position: relative;
+}
+
+.deleted-count {
+    position: absolute;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    background-color: red;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 19px;
+    top: -6px;
+    right: -6px;
+}
+
+.btn-list-songs {
+    position: relative;
+}
+
+.undelivered-count {
+    position: absolute;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    background-color: red;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 19px;
+    top: -6px;
+    right: -6px;
+}

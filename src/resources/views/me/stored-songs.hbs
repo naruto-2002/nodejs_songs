@@ -1,0 +1,155 @@
+<h1 class='text-center'>My songs</h1>
+
+<form
+    class='container p-0 mt-4 d-flex justify-content-between align-items-center'
+>
+    <div class='stored-controller-btn'>
+        <a class='_btn' href='/songs/create'>Create a new song</a>
+        <a class='_btn btn-trash' href='/me/trash/songs'>
+            Trash
+            {{#if deletedCount}}
+                <strong class='deleted-count'>{{deletedCount}}</strong>
+            {{/if}}
+        </a>
+    </div>
+    <div class='stored-action'>
+        <div class='form-check me-2'>
+            <input
+                class='form-check-input'
+                type='checkbox'
+                name=''
+                id='check-all'
+            />
+            <label class='form-check-label' for='check-all'>
+                Select all
+            </label>
+        </div>
+
+        <select class='form-select-sm me-2' aria-label='Default select example'>
+            <option selected>--Action--</option>
+            <option value='delete'>Delete</option>
+        </select>
+
+        <button type='submit' class='_btn'>Execute</button>
+    </div>
+</form>
+<table class='table'>
+    <thead>
+        <tr>
+            <th scope='col'>Serial</th>
+            <th scope='col'>Name</th>
+            <th scope='col'>Singer</th>
+            <th scope='col' colspan='4'>Time creation</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each songs}}
+            <tr>
+                <th scope='row'>{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.singer}}</td>
+                <td>{{this.createdAt}}</td>
+                <td><a href='/songs/{{this._id}}/edit' class='_btn'>Fix</a></td>
+                <td><a
+                        class='_btn'
+                        href=''
+                        data-bs-toggle='modal'
+                        data-bs-target='#delete-song-modal'
+                        data-bs-id='{{this._id}}'
+                    >Delete</a>
+                </td>
+                <td>
+                    <input
+                        class='form-check-input check-item m-0 text-center align-middle'
+                        type='checkbox'
+                        name='songIds[]'
+                        id=''
+                    />
+                </td>
+            </tr>
+        {{else}}
+
+            <tr>
+                <td colspan='5' class='text-center'>
+                    <span>You have not posted any song.</span>
+                </td>
+            </tr>
+
+        {{/each}}
+
+    </tbody>
+</table>
+
+{{! Notice of confirmation of deletion }}
+<div class='modal' id='delete-song-modal' tabindex='-1'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <h5 class='modal-title'>Delete the song?</h5>
+                <button
+                    type='button'
+                    class='btn-close'
+                    data-bs-dismiss='modal'
+                    aria-label='Close'
+                ></button>
+            </div>
+            <div class='modal-body'>
+                <p>You definitely want to delete this song?</p>
+            </div>
+            <div class='modal-footer'>
+                <button
+                    type='button'
+                    class='btn btn-secondary'
+                    data-bs-dismiss='modal'
+                >Cancel</button>
+                <button
+                    id='btn-delete-song'
+                    type='button'
+                    class='btn btn-danger'
+                    data-bs-id='{{this._id}}'
+                >Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form name='delete-song-form' method='POST'></form>
+
+<script>
+    var songId
+    const deleteSongModal = document.getElementById('delete-song-modal') 
+    const deleteSongBtn = document.getElementById('btn-delete-song') 
+    const deleteSongForm = document.forms['delete-song-form']
+    const checkAll = document.getElementById('check-all')
+    const checkItems = document.querySelectorAll('.check-item')
+
+    deleteSongModal.addEventListener('show.bs.modal', function (event) { 
+        var button = event.relatedTarget 
+        songId = button.getAttribute('data-bs-id') 
+    })
+
+    {{! when delete btn clicked }}
+    deleteSongBtn.onclick = () => { 
+        deleteSongForm.action = '/songs/' + songId + '?_method=DELETE' 
+        deleteSongForm.submit() 
+    }
+
+    {{!-- when checkAll changed --}}
+    checkAll.onchange = (e) => {
+        var isCheckedAll = e.target.checked
+        checkItems.forEach((checkItem) => {
+            checkItem.checked = isCheckedAll
+        })
+    }
+
+    {{!-- when checkItem changed  --}}
+    checkItems.forEach((checkItem) => {
+        checkItem.onchange = () => {
+            var isCheckedAll = checkItems.length === [...checkItems].filter((e) => e.checked).length
+            checkAll.checked = isCheckedAll
+        }
+    })
+
+
+
+</script>
