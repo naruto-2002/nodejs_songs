@@ -9,6 +9,7 @@ router.get('/stored/songs', meController.storedSongs);
 router.get('/trash/songs', meController.trashSongs);
 router.get('/create', songsController.create);
 router.post('/store', songsController.store);
+router.post('/handle-form-actions', songsController.handleFormActions);
 router.patch('/:id/restore', songsController.restore);
 router.get('/:id/edit', songsController.edit);
 router.put('/:id', songsController.update);

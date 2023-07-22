@@ -5,7 +5,16 @@ import { mongooseToObject } from '../../../util/mongoose.mjs';
 const MeController = {
     // [GET] /me/stored/songs
     storedSongs(req, res, next) {
-        Promise.all([Song.find({}), Song.countWithDeleted({deleted: true})])
+
+        let songQuery = Song.find({})
+
+        if(req.query.hasOwnProperty('_sort')) {
+            songQuery = songQuery.sort({
+                [req.query.column]: req.query.type
+            })
+        }
+
+        Promise.all([songQuery, Song.countWithDeleted({deleted: true})])
             .then(([songs, deletedCount]) => {
                 res.render('me/stored-songs', { 
                     deletedCount,
@@ -17,7 +26,16 @@ const MeController = {
     },
     // [GET] /me/stored/songs
     trashSongs(req, res, next) {
-        Promise.all([Song.findWithDeleted({deleted: true}), Song.count({})])
+
+        let songQuery = Song.findWithDeleted({deleted: true})
+
+        if(req.query.hasOwnProperty('_sort')) {
+            songQuery = songQuery.sort({
+                [req.query.column]: req.query.type
+            })
+        }
+
+        Promise.all([songQuery, Song.count({})])
             .then(([songs, undeliveredCount]) => {
                 res.render('me/trash-songs', { 
                     undeliveredCount,

@@ -7,6 +7,7 @@ import { dirname } from 'path';
 import methodOverride from 'method-override';
 
 import db from './config/db/index.mjs';
+import { sortMiddleware } from './app/middlewares/SortMiddlewares.mjs';
 
 // Connect DB
 db.connect();
@@ -27,6 +28,11 @@ app.use(methodOverride('_method'));
 
 // HTTP logger
 app.use(morgan('dev'));
+
+// custom middlewwware
+app.use(sortMiddleware)
+
+
 // Template engine
 app.engine(
     'hbs',
@@ -34,6 +40,32 @@ app.engine(
         extname: '.hbs',
         helpers: {
             sum: (a, b) => a + b,
+            sortable: (field, sort) => {
+
+                const sortType = (field === sort.column ? sort.type : 'default')
+
+                const icons = {
+                    default: 'bi bi-funnel',
+                    desc: 'bi bi-sort-down',
+                    asc: 'bi bi-sort-down-alt'
+                }
+
+                const types = {
+                    default: 'desc',
+                    desc: 'asc',
+                    asc: 'desc'
+                }
+
+                const icon = icons[sortType]
+                const type  = types[sortType]
+
+
+                return (
+                    `<a class="_btn" href="?_sort&column=${field}&type=${type}">
+                        <i class="${icon}"></i>
+                    </a>`
+                )
+            }
         },
     }),
 );

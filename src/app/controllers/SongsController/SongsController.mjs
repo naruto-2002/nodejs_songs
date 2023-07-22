@@ -22,10 +22,9 @@ const SongsController = {
         res.render('songs/create');
     },
     //  [POST] /songs/store
-    store(req, res, next) {
-        const formData = req.body;
-        formData.image = `https://i.ytimg.com/vi/${formData.videoId}/hq720.jpg`;
-        Song.create(formData)
+    async store(req, res, next) {
+        req.body.image = `https://i.ytimg.com/vi/${req.body.videoId}/hq720.jpg`;
+        Song.create(req.body)
             .then(() => {
                 res.redirect('/me/stored/songs');
             })
@@ -67,6 +66,35 @@ const SongsController = {
             })
             .catch(next)
     },
+    // [POST] /songs/handle-form-actions
+    handleFormActions(req, res, next) {
+        switch(req.body.action) {
+            case 'delete':
+                Song.delete({_id: {$in: req.body.songIds}})
+                    .then(() => {
+                        res.redirect('back')
+                    })
+                    .catch(next)
+                break
+            case 'restore':
+                Song.restore({_id: {$in: req.body.songIds}})
+                    .then(() => {
+                        res.redirect('back')
+                    })
+                    .catch(next)
+                break
+            case 'permanently-delete':
+                Song.deleteMany({_id: {$in: req.body.songIds}})
+                    .then(() => {
+                        res.redirect('back')
+                    })
+                    .catch(next)
+                break
+            default:
+                res.json({error: 'Action is invalid!!!'})
+        }
+        // res.json(req.body)
+    }
 };
 
 export default SongsController;

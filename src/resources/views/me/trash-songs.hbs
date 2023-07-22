@@ -1,49 +1,101 @@
 <h1 class="text-center">Delete songs</h1>
-<div class="_btn-controller">
-    <a class="_btn btn-list-songs" href='/me/stored/songs'>
-        List of songs
-        {{#if undeliveredCount}}
-            <strong class="undelivered-count">{{undeliveredCount}}</strong>
-        {{/if}}
-    </a>
-</div>
-<table class='table'>
-    <thead>
-        <tr>
-            <th scope='col'>Serial</th>
-            <th scope='col'>Name</th>
-            <th scope='col'>Singer</th>
-            <th scope='col' colspan='4'>Delete time</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each songs}}
+
+<form class='container-trash-form 'method="POST" action="/songs/handle-form-actions">
+    <div class="btn-controller p-0 mt-4 d-flex justify-content-between align-items-center">
+        <div class="trash-left-btn">
+            <a class="_btn btn-list-songs" href='/me/stored/songs'>
+                List of songs
+                {{#if undeliveredCount}}
+                    <strong class="undelivered-count">{{undeliveredCount}}</strong>
+                {{/if}}
+            </a>
+        </div>
+        <div class='trash-right-btn d-flex'>
+            <div class='form-check me-2'>
+                <input
+                    class='form-check-input'
+                    type='checkbox'
+                    name=''
+                    id='check-all'
+                />
+                <label class='form-check-label' for='check-all'>
+                    Select all
+                </label>
+            </div>
+
+            <select class='form-select-sm me-2' name="action" required="required" >
+                <option value="" >--Action--</option>
+                <option value='restore'>Restore</option>
+                <option value='permanently-delete'>Permanently delete</option>
+            </select>
+
+            <button type="submit" class='btn _btn check-all-submit-btn' disabled="disabled">Execute</button>
+        </div>
+    </div>
+    <table class='table'>
+        <thead>
             <tr>
-                <th scope='row'>{{sum @index 1}}</th>
-                <td>{{this.name}}</td>
-                <td>{{this.singer}}</td>
-                <td>{{this.deletedAt}}</td>
-                <td><a class="btn-restore _btn" data-id="{{this._id}}" href=''>Restore</a></td>
-                <td><a
-                        class="_btn"
-                        href=''
-                        data-bs-toggle='modal'
-                        data-bs-target='#delete-song-modal'
-                        data-bs-id='{{this._id}}'
-                    >Permanently delete</a></td>
+                <th  scope='col'>
+                    Serial
+                    {{{sortable '_id' sort}}}
+                </th>
+                <th scope='col'>
+                    Name
+                    {{{sortable 'name' sort}}}
+                </th>
+                <th scope='col'>
+                    Singer
+                    {{{sortable 'singer' sort}}}
+                </th>
+                <th scope='col' colspan='4'>
+                    Time creation
+                    {{{sortable 'createdAt' sort}}}
+                </th>
             </tr>
-        {{else}}
+        </thead>
+        <tbody>
+            {{#each songs}}
+                <tr>
+                    <th scope='row'>{{this._id}}</th>
+                    <td>{{this.name}}</td>
+                    <td>{{this.singer}}</td>
+                    <td>{{this.deletedAt}}</td>
+                    <td class="align-middle"><a class="btn-restore _btn" data-id="{{this._id}}" href=''>Restore</a></td>
+                    <td class="align-middle">
+                        <a
+                            class="_btn"
+                            href=''
+                            data-bs-toggle='modal'
+                            data-bs-target='#delete-song-modal'
+                            data-bs-id='{{this._id}}'
+                        >Permanently delete</a>
+                    </td>
+                    <td>
+                        <input
+                            class='form-check-input check-item m-0 text-center align-middle'
+                            type='checkbox'
+                            name='songIds[]'
+                            value="{{this._id}}"
+                        />
+                    </td>
+                </tr>
+            {{else}}
 
-            <tr>
-                <td colspan='5' class='text-center'>
-                    <span>Drum trash.</span>
-                </td>
-            </tr>
+                <tr>
+                    <td colspan='5' class='text-center'>
+                        <span>Drum trash.</span>
+                    </td>
+                </tr>
 
-        {{/each}}
+            {{/each}}
 
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</form>
+
+
+
+
 
 {{! Notice of confirmation of deletion }}
 <div class='modal' id='delete-song-modal' tabindex='-1'>
@@ -83,11 +135,15 @@
 
 <script>
     var songId; 
+    
     const deleteSongModal = document.getElementById('delete-song-modal') 
     const deleteSongBtn = document.getElementById('btn-delete-song') 
     const deleteSongForm = document.forms['delete-song-form']
-    const restoreBtn = document.querySelectorAll('.btn-restore')
     const restoreForm = document.forms['restore-song-form']
+    const restoreBtn = document.querySelectorAll('.btn-restore')
+    const checkAll = document.getElementById('check-all')
+    const checkItems = document.querySelectorAll('.check-item')
+    const checkAllSubmitBtn = document.querySelector('.check-all-submit-btn')
 
     deleteSongModal.addEventListener('show.bs.modal', function (event) { 
         var button = event.relatedTarget 
@@ -107,4 +163,28 @@
             restoreForm.submit()
         }
     })
+
+    {{!-- when checkAll changed --}}
+    checkAll.onchange = (e) => {
+        var isCheckedAll = e.target.checked
+        checkItems.forEach((checkItem) => {
+            checkItem.checked = isCheckedAll
+        })
+        renderCheckAllSubmitBtn()
+    }
+
+    {{!-- when checkItem changed  --}}
+    checkItems.forEach((checkItem) => {
+        checkItem.onchange = () => {
+            var isCheckedAll = checkItems.length === [...checkItems].filter((e) => e.checked).length
+            checkAll.checked = isCheckedAll
+            renderCheckAllSubmitBtn()
+        }
+    })
+
+    {{!-- render check all submit btn --}}
+    function renderCheckAllSubmitBtn() {
+        var checkedCount = [...checkItems].filter((e) => e.checked).length
+        checkedCount > 0 ? checkAllSubmitBtn.removeAttribute('disabled') : checkAllSubmitBtn.setAttribute('disabled', 'disabled')
+    }
 </script>
